@@ -3,8 +3,16 @@ import { defineConfig } from 'astro/config';
 
 import sitemap from '@astrojs/sitemap';
 
+
+import robotsTxt from 'astro-robots-txt';
+
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://blog.robinmonteil.fr',
-	integrations: [mdx(), sitemap()],
+  site: 'https://robinmonteil.fr',
+
+  integrations: [
+    mdx(),
+    sitemap(),
+    robotsTxt(),
+  ],
 });

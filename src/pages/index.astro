@@ -1,8 +1,15 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Header from "../components/Header.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const sortedPosts = allPosts
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
 ---
 
 <!doctype html>
@@ -12,39 +19,248 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 	</head>
 	<body>
 		<Header title={SITE_TITLE} />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to
-				build a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like
-				Tailwind, React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/pages/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to <a href="https://docs.astro.build/"
-					>read the docs
-				</a> or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out <a
-					href="https://github.com/Charca/astro-blog-template"
-					>astro-blog-template
-				</a> by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+		<main class="hero-main">
+			<div class="hero-container">
+				<div class="hero-content">
+					<h1>Hey, I'm Robin!</h1>
+					<p>
+						I'm a fullstack developer specializing in Vue.js. I
+						build beautiful, performant web applications and share
+						what I learn along the way.
+					</p>
+					<nav class="hero-links">
+						<a href="/blog">Blog</a>
+						<a href="https://github.com/rmonteil" target="_blank"
+							>GitHub</a
+						>
+						<a
+							href="https://keybase.io/robinmonteil"
+							target="_blank">Keybase</a
+						>
+						<a
+							href="https://www.linkedin.com/in/robinmonteil/"
+							target="_blank">LinkedIn</a
+						>
+					</nav>
+				</div>
+				<div class="hero-image">
+					<img
+						src="/robin-monteil.jpg"
+						alt="Robin Monteil"
+						class="avatar-image"
+					/>
+				</div>
+			</div>
+
+			<!-- Latest Articles -->
+			<section class="articles-section">
+				<h2>Latest Articles</h2>
+				<div class="articles-list">
+					{
+						sortedPosts.length ? (
+							sortedPosts.map((post) => (
+								<article class="article-item">
+									<div class="article-meta">
+										<FormattedDate
+											date={post.data.pubDate}
+										/>
+									</div>
+									<h3>
+										<a href={`/blog/${post.slug}/`}>
+											{post.data.title}
+										</a>
+									</h3>
+									<p>{post.data.description}</p>
+								</article>
+							))
+						) : (
+							<div class="empty-state">
+								<p>No articles yet.</p>
+							</div>
+						)
+					}
+				</div>
+				{
+					sortedPosts.length ? (
+						<a href="/blog" class="view-all-link">
+							View all articles →
+						</a>
+					) : null
+				}
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.hero-main {
+		width: 100%;
+		max-width: 100%;
+		padding: 0;
+	}
+
+	.hero-container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		gap: 4rem;
+		padding: 4rem 2rem;
+		max-width: 1000px;
+		margin: 0 auto;
+	}
+
+	.hero-content h1 {
+		font-size: 3.5rem;
+		margin: 0 0 1.5rem 0;
+		line-height: 1.2;
+		color: rgb(var(--black));
+	}
+
+	.hero-content > p {
+		font-size: 1.1rem;
+		margin: 0 0 2rem 0;
+		line-height: 1.8;
+		color: rgb(var(--gray-dark));
+	}
+
+	.hero-links {
+		display: flex;
+		gap: 2rem;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.hero-links a {
+		color: var(--accent);
+		text-decoration: none;
+		font-weight: 500;
+		transition: opacity 0.3s ease;
+	}
+
+	.hero-links a:hover {
+		opacity: 0.7;
+	}
+
+	.hero-image {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.avatar-image {
+		width: 220px;
+		height: 220px;
+		border-radius: 1rem;
+		object-fit: cover;
+		box-shadow: var(--box-shadow);
+	}
+
+	/* Articles Section */
+	.articles-section {
+		padding: 4rem 2rem;
+		max-width: 1000px;
+		margin: 0 auto;
+	}
+
+	.articles-section h2 {
+		font-size: 1.8rem;
+		margin: 0 0 2.5rem 0;
+		color: rgb(var(--black));
+	}
+
+	.articles-list {
+		margin-bottom: 2rem;
+	}
+
+	.empty-state {
+		padding: 2.5rem 1.5rem;
+		text-align: center;
+		border: 1px dashed rgba(var(--gray), 35%);
+		border-radius: 16px;
+		color: rgb(var(--gray-dark));
+		background: rgba(var(--accent), 6%);
+	}
+
+	.article-item {
+		padding-bottom: 2rem;
+		margin-bottom: 2rem;
+		border-bottom: 1px solid rgba(var(--gray), 20%);
+	}
+
+	.article-item:last-child {
+		border-bottom: none;
+		padding-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	.article-meta {
+		font-size: 0.9rem;
+		color: rgb(var(--gray));
+		margin-bottom: 0.5rem;
+	}
+
+	.article-item h3 {
+		margin: 0.5rem 0 0.75rem 0;
+		font-size: 1.3rem;
+	}
+
+	.article-item h3 a {
+		text-decoration: none;
+		color: rgb(var(--black));
+		transition: color 0.3s ease;
+	}
+
+	.article-item h3 a:hover {
+		color: var(--accent);
+	}
+
+	.article-item p {
+		margin: 0;
+		color: rgb(var(--gray-dark));
+		line-height: 1.6;
+	}
+
+	.view-all-link {
+		color: var(--accent);
+		text-decoration: none;
+		font-weight: 500;
+		display: inline-block;
+		margin-top: 1rem;
+		transition: opacity 0.3s ease;
+	}
+
+	.view-all-link:hover {
+		opacity: 0.7;
+	}
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.hero-container {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+			padding: 2rem 1rem;
+		}
+
+		.hero-image {
+			display: none;
+		}
+
+		.hero-content h1 {
+			font-size: 2.2rem;
+		}
+
+		.avatar-image {
+			width: 200px;
+			height: 200px;
+		}
+
+		.articles-section {
+			padding: 2rem 1rem;
+		}
+
+		.hero-links {
+			gap: 1rem;
+		}
+	}
+</style>
